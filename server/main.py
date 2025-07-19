@@ -1,5 +1,7 @@
 import asyncio
+import os
 from fastapi import FastAPI, WebSocket
+import uvicorn
 
 from pydantic_models.chat_body import ChatBody
 from services.llm_service import LLMService
@@ -56,4 +58,8 @@ def chat_endpoint(body: ChatBody):
     response = llm_service.generate_response(updated_history, sorted_results)
 
     return response
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))  # Render platformundan PORT okunuyor, yoksa 8000
+    uvicorn.run(app, host="0.0.0.0", port=port)
     
