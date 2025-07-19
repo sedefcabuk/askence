@@ -38,6 +38,7 @@ dependencies:
   web_socket_client: ^0.2.1
   flutter_markdown_plus: ^1.0.3
   skeletonizer: ^2.1.0+1
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

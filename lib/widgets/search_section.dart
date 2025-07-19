@@ -14,10 +14,22 @@ class SearchSection extends StatefulWidget {
 
 class _SearchSectionState extends State<SearchSection> {
   final queryController = TextEditingController();
+
   @override
   void dispose() {
-    super.dispose();
     queryController.dispose();
+    super.dispose();
+  }
+
+  void _sendQuery() {
+    final query = queryController.text.trim();
+    if (query.isNotEmpty) {
+      ChatWebService().chat(query);
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => ChatPage(question: query)),
+      );
+      queryController.clear();
+    }
   }
 
   @override
@@ -58,6 +70,7 @@ class _SearchSectionState extends State<SearchSection> {
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
                   ),
+                  onSubmitted: (value) => _sendQuery(),
                 ),
               ),
               Padding(
@@ -67,17 +80,9 @@ class _SearchSectionState extends State<SearchSection> {
                     SearchBarButton(icon: Icons.add, text: 'Attach'),
                     const Spacer(),
                     GestureDetector(
-                      onTap: () {
-                        ChatWebService().chat(queryController.text.trim());
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ChatPage(question: queryController.text.trim()),
-                          ),
-                        );
-                      },
+                      onTap: _sendQuery,
                       child: Container(
-                        padding: EdgeInsets.all(9),
+                        padding: const EdgeInsets.all(9),
                         decoration: BoxDecoration(
                           color: AppColors.submitButton,
                           borderRadius: BorderRadius.circular(40),
