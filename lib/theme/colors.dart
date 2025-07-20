@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const background = Color.fromRGBO(223, 238, 247, 0.906);
+  static const background = Color.fromRGBO(232, 244, 251, 0.906);
   static const sideNav = Color.fromRGBO(151, 168, 168, 1);
   static const searchBar = Color.fromRGBO(32, 34, 34, 1);
   static const searchBarBorder = Color.fromRGBO(60, 63, 64, 1);

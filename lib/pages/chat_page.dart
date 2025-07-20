@@ -174,12 +174,22 @@ class _ChatPageState extends State<ChatPage> {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: message.isUser
-                      ? Text(
-                          message.text,
-                          textAlign: TextAlign.right,
-                          style: const TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
+                      ? Align(
+                          alignment: Alignment.centerRight,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.cardColor,
+                              border: Border.all(width: 1),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              message.text,
+                              style: const TextStyle(fontSize: 16),
+                            ),
                           ),
                         )
                       : message.isSource
@@ -246,9 +256,10 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(7.0),
             child: Container(
-              width: 700,
+              width: 800,
+              height: 109,
               decoration: BoxDecoration(
                 color: AppColors.cardColor,
                 borderRadius: BorderRadius.circular(24),

@@ -10,6 +10,9 @@ class LLMService:
         self.model = genai.GenerativeModel("gemini-2.0-flash-exp")
 
     def generate_response(self, history: list[dict], search_results: list[dict]):
+        search_results = search_results[:3]
+        if len(history) > 4:
+            history = history[-4:]
         """
         history: [{"role": "user"/"assistant", "content": "..."}]
         search_results: web arama sonuçları
@@ -17,7 +20,7 @@ class LLMService:
 
         context_text = "\n\n".join(
             [
-                f"Source {i+1} ({result['url']}):\n{result['content']}"
+                f"Source {i+1} ({result['url']}):\n{result['content'][:500]}"
                 for i, result in enumerate(search_results)
             ]
         )

@@ -48,7 +48,8 @@ class _SearchSectionState extends State<SearchSection> {
         ),
         const SizedBox(height: 32),
         Container(
-          width: 700,
+          width: 800,
+          height: 109,
           decoration: BoxDecoration(
             color: AppColors.cardColor,
             borderRadius: BorderRadius.circular(24),
@@ -57,7 +58,7 @@ class _SearchSectionState extends State<SearchSection> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(14.0),
                 child: TextField(
                   controller: queryController,
                   decoration: InputDecoration(
@@ -74,7 +75,7 @@ class _SearchSectionState extends State<SearchSection> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(7.0),
                 child: Row(
                   children: [
                     SearchBarButton(icon: Icons.add, text: 'Attach'),
