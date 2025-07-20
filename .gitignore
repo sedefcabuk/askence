@@ -46,7 +46,5 @@ app.*.map.json
 
 server/.env
 server/venv/
-server/__pycache__/
-server/*.pyc
-server/*.log
 
+.github/workflows/
