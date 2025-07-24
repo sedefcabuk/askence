@@ -1,7 +1,6 @@
 import 'package:askence/pages/chat_page.dart';
 import 'package:askence/services/chat_web_service.dart';
 import 'package:askence/theme/colors.dart';
-import 'package:askence/widgets/search_bar_button.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -78,7 +77,6 @@ class _SearchSectionState extends State<SearchSection> {
                 padding: const EdgeInsets.all(7.0),
                 child: Row(
                   children: [
-                    SearchBarButton(icon: Icons.add, text: 'Attach'),
                     const Spacer(),
                     GestureDetector(
                       onTap: _sendQuery,

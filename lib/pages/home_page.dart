@@ -1,6 +1,5 @@
 import 'package:askence/services/chat_web_service.dart';
 import 'package:askence/widgets/search_section.dart';
-import 'package:askence/widgets/side_bar.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,9 +21,12 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: Row(
         children: [
-          SideBar(),
+          //SideBar(),
           Expanded(
-            child: Column(children: [Expanded(child: SearchSection())]),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(children: [Expanded(child: SearchSection())]),
+            ),
           ),
         ],
       ),
