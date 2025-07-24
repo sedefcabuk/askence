@@ -3,32 +3,31 @@ from config import Settings
 
 settings = Settings()
 
-
 class LLMService:
     def __init__(self):
         genai.configure(api_key=settings.GEMINI_API_KEY)
-        self.model = genai.GenerativeModel("gemini-2.0-flash-exp")
+        self.model = genai.GenerativeModel("gemini-2.0-flash-exp")  # Gerekirse pro modelle değiştir
 
-    def generate_response(self, history: list[dict], search_results: list[dict]):
+    def build_full_prompt(self, history: list[dict], search_results: list[dict]) -> str:
         """
-        history: [{"role": "user"/"assistant", "content": "..."}]
-        search_results: web arama sonuçları
+        Geçmiş mesajlar ve web arama sonuçlarını içeren bir prompt inşa eder.
         """
-
+        # 1. Web bağlamını birleştir
         context_text = "\n\n".join(
             [
                 f"Source {i+1} ({result['url']}):\n{result['content']}"
                 for i, result in enumerate(search_results)
             ]
         )
-        chat_history_text = ""
-        for message in history:
-            role = message["role"].capitalize()
-            content = message["content"]
-            chat_history_text += f"{role}: {content}\n"
 
+        # 2. Mesaj geçmişini yazıya dök
+        history_text = ""
+        for msg in history:
+            role = "User" if msg["role"] == "user" else "Assistant"
+            history_text += f"{role}: {msg['content']}\n"
 
-        full_prompt = f"""
+        # 3. Prompt'u oluştur
+        prompt = f"""
 You are a helpful AI assistant. Use only the following web search context unless absolutely necessary.
 
 --- WEB CONTEXT START ---
@@ -36,14 +35,19 @@ You are a helpful AI assistant. Use only the following web search context unless
 --- WEB CONTEXT END ---
 
 --- CHAT HISTORY START ---
-{chat_history_text}
+{history_text}
 --- CHAT HISTORY END ---
 
-Now continue the conversation based on the last user message.
+Continue the conversation.
 Respond clearly, with detail, and cite sources like (Source 2) if relevant.
 """
+        return prompt.strip()
 
-        response = self.model.generate_content(full_prompt, stream=True)
+    def generate_response(self, history: list[dict], search_results: list[dict]):
+        prompt = self.build_full_prompt(history, search_results)
+        
+        # Chat objesi yerine doğrudan prompt gönderiyoruz
+        response = self.model.generate_content(prompt, stream=True)
 
         for chunk in response:
             yield chunk.text

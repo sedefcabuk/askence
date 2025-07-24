@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'package:askence/services/chat_web_service.dart';
 import 'package:askence/theme/colors.dart';
+import 'package:askence/widgets/loading_dots.dart';
 import 'package:askence/widgets/search_bar_button.dart';
+import 'package:askence/widgets/side_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Message {
@@ -156,164 +157,174 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: Row(
         children: [
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(24.0),
-              itemCount: messages.length + (isLoading ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index == messages.length && isLoading) {
-                  return const Skeletonizer(
-                    enabled: true,
-                    child: Text('Yükleniyor...'),
-                  );
-                }
-                final message = messages[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: message.isUser
-                      ? Align(
-                          alignment: Alignment.centerRight,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.cardColor,
-                              border: Border.all(width: 1),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Text(
-                              message.text,
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        )
-                      : message.isSource
-                      ? Wrap(
-                          spacing: 16,
-                          runSpacing: 16,
-                          children: (message.sources ?? []).map((res) {
-                            return Container(
-                              width: 150,
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: AppColors.cardColor,
-                                borderRadius: BorderRadius.circular(8),
+          SideBar(),
+          Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(24.0),
+                  itemCount: messages.length + (isLoading ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == messages.length && isLoading) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: LoadingDots(),
+                        ),
+                      );
+                    }
+                    final message = messages[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: message.isUser
+                          ? Align(
+                              alignment: Alignment.centerRight,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.cardColor,
+                                  border: Border.all(width: 1),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Text(
+                                  message.text,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    res['title'] ?? 'No title',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
+                            )
+                          : message.isSource
+                          ? Wrap(
+                              spacing: 16,
+                              runSpacing: 16,
+                              children: (message.sources ?? []).map((res) {
+                                return Container(
+                                  width: 150,
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.cardColor,
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  if (res['url'] != null) ...[
-                                    const SizedBox(height: 8),
-                                    GestureDetector(
-                                      onTap: () =>
-                                          launchUrl(Uri.parse(res['url'])),
-                                      child: Text(
-                                        res['url'],
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        res['title'] ?? 'No title',
                                         style: const TextStyle(
-                                          color: Colors.blue,
-                                          fontSize: 12,
-                                          decoration: TextDecoration.underline,
+                                          fontWeight: FontWeight.w500,
                                         ),
-                                        maxLines: 1,
+                                        maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
+                                      if (res['url'] != null) ...[
+                                        const SizedBox(height: 8),
+                                        GestureDetector(
+                                          onTap: () =>
+                                              launchUrl(Uri.parse(res['url'])),
+                                          child: Text(
+                                            res['url'],
+                                            style: const TextStyle(
+                                              color: Colors.blue,
+                                              fontSize: 12,
+                                              decoration:
+                                                  TextDecoration.underline,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            )
+                          : Markdown(
+                              data: message.text.isEmpty ? "_" : message.text,
+                              shrinkWrap: true,
+                              styleSheet:
+                                  MarkdownStyleSheet.fromTheme(
+                                    Theme.of(context),
+                                  ).copyWith(
+                                    codeblockDecoration: BoxDecoration(
+                                      color: AppColors.cardColor,
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
-                                  ],
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        )
-                      : Markdown(
-                          data: message.text.isEmpty ? "_" : message.text,
-                          shrinkWrap: true,
-                          styleSheet:
-                              MarkdownStyleSheet.fromTheme(
-                                Theme.of(context),
-                              ).copyWith(
-                                codeblockDecoration: BoxDecoration(
-                                  color: AppColors.cardColor,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                code: const TextStyle(fontSize: 16),
-                              ),
-                        ),
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(7.0),
-            child: Container(
-              width: 800,
-              height: 109,
-              decoration: BoxDecoration(
-                color: AppColors.cardColor,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: AppColors.searchBarBorder,
-                  width: 1.5,
+                                    code: const TextStyle(fontSize: 16),
+                                  ),
+                            ),
+                    );
+                  },
                 ),
               ),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: TextField(
-                      controller: textEditingController,
-                      decoration: InputDecoration(
-                        hintText: "Ask anything...",
-                        hintStyle: TextStyle(
-                          color: AppColors.textGrey,
-                          fontSize: 16,
-                        ),
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                      onSubmitted: (value) => _sendMessage(),
+              Padding(
+                padding: const EdgeInsets.all(7.0),
+                child: Container(
+                  width: 800,
+                  height: 109,
+                  decoration: BoxDecoration(
+                    color: AppColors.cardColor,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: AppColors.searchBarBorder,
+                      width: 1.5,
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        SearchBarButton(icon: Icons.add, text: 'Attach'),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: _sendMessage,
-                          child: Container(
-                            padding: const EdgeInsets.all(9),
-                            decoration: BoxDecoration(
-                              color: AppColors.submitButton,
-                              borderRadius: BorderRadius.circular(40),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: TextField(
+                          controller: textEditingController,
+                          decoration: InputDecoration(
+                            hintText: "Ask anything...",
+                            hintStyle: TextStyle(
+                              color: AppColors.textGrey,
+                              fontSize: 16,
                             ),
-                            child: Icon(
-                              Icons.arrow_forward,
-                              color: AppColors.background,
-                              size: 16,
-                            ),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
                           ),
+                          onSubmitted: (value) => _sendMessage(),
                         ),
-                      ],
-                    ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            SearchBarButton(icon: Icons.add, text: 'Attach'),
+                            const Spacer(),
+                            GestureDetector(
+                              onTap: _sendMessage,
+                              child: Container(
+                                padding: const EdgeInsets.all(9),
+                                decoration: BoxDecoration(
+                                  color: AppColors.submitButton,
+                                  borderRadius: BorderRadius.circular(40),
+                                ),
+                                child: Icon(
+                                  Icons.arrow_forward,
+                                  color: AppColors.background,
+                                  size: 16,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ],
       ),

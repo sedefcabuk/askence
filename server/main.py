@@ -21,20 +21,35 @@ llm_service = LLMService()
 async def websocket_chat_endpoint(websocket: WebSocket):
     await websocket.accept()
 
+    conversation_history = []
+
     try:
-        data = await websocket.receive_json()
-        query = data.get("query")
-        search_results = search_service.web_search(query)
-        sorted_results = sort_source_service.sort_sources(query, search_results)
-        await websocket.send_json({"type": "search_result", "data": sorted_results})
-        for chunk in llm_service.generate_response([{"role": "user", "content": query}], sorted_results):
-            await websocket.send_json({"type": "content", "data": chunk})
+        while True:
+            data = await websocket.receive_json()
+            query = data.get("query")
+            if query is None:
+                continue  # Boş veri geldiyse atla
+
+            # 📌 Geçmişe kullanıcı mesajını ekle
+            conversation_history.append({"role": "user", "content": query})
+
+            search_results = search_service.web_search(query)
+            sorted_results = sort_source_service.sort_sources(query, search_results)
+            await websocket.send_json({"type": "search_result", "data": sorted_results})
+            response_chunks = llm_service.generate_response(conversation_history, sorted_results)
+            full_response = ""
+            for chunk in response_chunks:
+                full_response += chunk
+                await websocket.send_json({"type": "content", "data": chunk})
+            conversation_history.append({"role": "assistant", "content": full_response})
+
 
     except Exception as e:
         print("Unexpected error occurred:", e)
     
     finally:
         await websocket.close()
+        
 
 
 # chat
